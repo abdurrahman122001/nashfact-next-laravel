@@ -10,4 +10,8 @@ class AppController extends Controller
     {
         return view('app'); // Assuming your Blade file is named app.blade.php
     }
+    public function profile()
+    {
+        return view('profile');
+    }
 }
