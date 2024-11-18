@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/organizations', [OrganizationController::class, 'store']);
 Route::get('/organizations', [OrganizationController::class, 'index']);
 Route::get('/organizations/count', [OrganizationController::class, 'count']);
+Route::put('/organizations/{id}', [OrganizationController::class, 'update']);
 
 Route::get('/admins', [AdminController::class, 'index']);
 Route::post('/admins', [AdminController::class, 'store']);

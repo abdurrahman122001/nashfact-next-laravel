@@ -4,6 +4,7 @@ import img from '../../../img/img-3.png';
 import img2 from '../../../img/Vector.png';
 
 export default function EditOrganization({ organization, onBack, onSave }) {
+  // Set up form state with default values
   const [formData, setFormData] = useState({
     company_name: organization.company_name || '',
     manager_name: organization.manager_name || '',
@@ -21,6 +22,7 @@ export default function EditOrganization({ organization, onBack, onSave }) {
 
   const [organizations, setOrganizations] = useState([]);
 
+  // Fetch organization list from API
   useEffect(() => {
     axios
       .get('/api/organizations')
@@ -28,16 +30,24 @@ export default function EditOrganization({ organization, onBack, onSave }) {
       .catch((error) => console.error('Error fetching organizations:', error));
   }, []);
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
+    setFormData((prevState) => ({
+      ...prevState,
       [name]: value,
     }));
   };
 
+  // Handle saving the updated organization data
   const handleSave = () => {
-    onSave({ ...organization, ...formData });
+    axios
+      .put(`/api/organizations/${organization.id}`, formData)
+      .then((response) => {
+        console.log(response.data.message);
+        onSave(response.data.organization); // Optional: update the state after saving
+      })
+      .catch((error) => console.error('Error updating organization:', error));
   };
 
   return (
@@ -46,7 +56,7 @@ export default function EditOrganization({ organization, onBack, onSave }) {
 
       <div className="flex gap-6">
         {/* Left Column */}
-        <div className="mx-auto" style={{ width: '25%' }}>
+        <div className="mx-auto animate-fadeInLeft" style={{ width: '25%' }}>
           {/* Organization Card */}
           <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
             <img
@@ -94,8 +104,8 @@ export default function EditOrganization({ organization, onBack, onSave }) {
         </div>
 
         {/* Right Column */}
-        <div className="grid grid-cols-2 gap-4" style={{ width: '75%' }}>
-          {[
+        <div className="grid grid-cols-2 gap-4 animate-fadeInRight" style={{ width: '75%' }}>
+          {[ 
             { name: 'company_name', placeholder: "Organization's Name" },
             { name: 'date_signed_up', placeholder: 'Date Signed Up' },
             { name: 'manager_name', placeholder: "Manager's Name" },

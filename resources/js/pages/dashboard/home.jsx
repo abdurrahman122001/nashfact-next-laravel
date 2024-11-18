@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Typography } from "@material-tailwind/react";
 import { UserGroupIcon, UserPlusIcon } from "@heroicons/react/24/solid";
-import { ArrowUpIcon } from "@heroicons/react/24/outline";
 import { FiTrendingUp } from 'react-icons/fi';
 
 export function Home() {
@@ -24,12 +23,13 @@ export function Home() {
       .catch(error => console.error('Error fetching organizations:', error));
   }, []);
 
-
   // Custom card layout component
-  const CustomCard = ({ icon, title, value }) => (
-
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div className="relative flex flex-col items-center justify-center bg-white py-7 px-4 rounded-lg shadow-lg h-36" style={{ borderRadius: '30px', height: '170px', width: '80%' }}>
+  const CustomCard = ({ icon, title, value, animationDelay }) => (
+    <div
+      className="flex justify-center items-center"
+      style={{ animationDelay: `${animationDelay}s` }}
+    >
+      <div className="relative flex flex-col items-center justify-center bg-white py-7 px-4 rounded-lg shadow-lg h-36 animate-fadeIn" style={{ borderRadius: '30px', height: '170px', width: '80%' }}>
         {/* Upper icon and title - positioned at the top-left */}
         <div className="absolute top-3 left-3 flex items-center space-x-3">
           <div className="p-3 rounded-md bg-yellow-100 flex items-center justify-center ml-4" style={{ color: 'black' }}>
@@ -57,23 +57,26 @@ export function Home() {
           icon={UserGroupIcon}
           title="Total Organizations"
           value={organizationCount}
+          animationDelay={0.1}
         />
         <CustomCard
           icon={UserPlusIcon}
           title="New Sign Ups"
           value={0} // Static value
+          animationDelay={0.3}
         />
         <CustomCard
           icon={UserGroupIcon}
           title="Active Users"
           value={0} // Static value
+          animationDelay={0.5}
         />
       </div>
 
       <div style={{ width: '80%', marginLeft: '60px' }}>
-        <h2 className="text-lg font-semibold text-gray-800 mb-4" style={{ fontFamily: 'Poppins' }}>Recent</h2>
+        <h2 className="text-lg animate-fadeInUp font-semibold text-gray-800 mb-4" style={{ fontFamily: 'Poppins' }}>Recent</h2>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="flex justify-center items-center animate-fadeInUp">
         <div className="p-6 bg-white rounded-lg shadow-md mb-10" style={{ width: '92%' }}>
           <div className="overflow-x-auto">
             <table className="min-w-full bg-gray-50 rounded-lg shadow">

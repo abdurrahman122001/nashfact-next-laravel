@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Profile from "../../../img/profile.png";
+import { useNavigate } from 'react-router-dom';
 
 import {
   Navbar,
@@ -17,7 +18,7 @@ import { MdPersonOutline, MdLockOutline, MdLogout } from "react-icons/md"; // Re
 import { MdNotificationsNone } from "react-icons/md";
 import { Bars3Icon } from "@heroicons/react/24/solid";
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
-import MessageCard from "../../pages/dashboard/MessagesCard";
+import MessagesCard from "../../pages/dashboard/messagesCard";
 import SignIn from "../../pages/auth/sign-in";
 
 export function DashboardNavbar() {
@@ -26,15 +27,16 @@ export function DashboardNavbar() {
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
   const [activeComponent, setActiveComponent] = useState(null);
+  const navigate = useNavigate();
 
-  const renderComponent = () => {
-    if (activeComponent === "MessageCard") {
-      return <MessageCard />;
-    } else if (activeComponent === "SignIn") {
-      return <SignIn />;
-    }
-    return null;
-  };
+  // const renderComponent = () => {
+  //   if (activeComponent === "") {
+  //     return <MessagesCard />;
+  //   } else if (activeComponent === "SignIn") {
+  //     return <SignIn />;
+  //   }
+  //   return null;
+  // };
 
   return (
     <div>
@@ -83,10 +85,10 @@ export function DashboardNavbar() {
             </IconButton>
 
             {/* Notifications Icon */}
-            <div
+        <div
               className="mr-3 flex items-center justify-center w-14 h-12 rounded-full cursor-pointer"
               style={{ backgroundColor: "#fff2d4" }}
-              onClick={() => setActiveComponent("MessageCard")}
+              onClick={() => navigate("messagesCard")} // Redirect to the MessageCard page
             >
               <MdNotificationsNone
                 className="text-black text-lg"
@@ -157,7 +159,6 @@ export function DashboardNavbar() {
       </Navbar>
 
       {/* Render the active component */}
-      {renderComponent()}
     </div>
   );
 }

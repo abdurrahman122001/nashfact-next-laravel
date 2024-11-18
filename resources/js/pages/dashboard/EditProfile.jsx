@@ -45,7 +45,7 @@ export function EditProfile({ admin, onClose, onSave }) {
       <h2 className="text-xl font-semibold mb-4">Profile</h2>
       <div className="flex space-x-8">
         {/* Left Column: Profile Image and Upload Section */}
-        <div className="w-1/4">
+        <div className="w-1/4 animate-fadeInLeft">
         <div className="p-4 rounded-lg mb-4 shadow-md bg-white w-full pb-20">
             <img
               src={Rectange}
@@ -78,7 +78,7 @@ export function EditProfile({ admin, onClose, onSave }) {
         </div>
 
         {/* Right Column: Form Fields */}
-        <div className="flex-1">
+        <div className="flex-1 animate-fadeInRight">
           <div className="grid grid-cols-2 gap-4">
             {['name', 'employeeId', 'dob', 'phone', 'departments', 'designation', 'address', 'address2', 'city', 'state', 'zip', 'country'].map((field, index) => (
               <div key={index} className={field === 'address' || field === 'address2' ? 'col-span-2' : ''}>

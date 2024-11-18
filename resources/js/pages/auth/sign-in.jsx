@@ -6,6 +6,7 @@ import { Button, Typography, Checkbox } from "@material-tailwind/react";
 import img from "../../../img/logo.png";
 import { RxEyeClosed } from "react-icons/rx";
 import { RxEyeOpen } from "react-icons/rx";
+import backgroundImage from "../../../img/bg-2.jpg"; // Replace with the correct path to your background image
 
 export function SignIn() {
   const [email, setEmail] = useState("");
@@ -82,7 +83,7 @@ export function SignIn() {
 
   return (
     <div className="flex min-h-screen">
-      <div className={`w-full ${isCodeSent ? 'lg:w-full' : 'lg:w-[60%]'} flex flex-col items-center justify-center px-10`}>
+      <div className={`w-full ${isCodeSent ? 'lg:w-full' : 'lg:w-[60%]'} flex flex-col items-center justify-center px-10`} style={isCodeSent ? { backgroundImage: `url(${backgroundImage})` } : {}}>
         <div className="w-full max-w-md flex items-center justify-center flex-col">
           <Typography variant="h2" className="text-3xl text-center mb-2" style={{ fontFamily: 'Poppins', fontWeight: '10px' }}>Account Log In</Typography>
           <Typography variant="paragraph" style={{ color: '#FC8C10', fontFamily: 'Poppins' }} className="text-center text-lg mb-6">

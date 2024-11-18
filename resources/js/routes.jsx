@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  TableCellsIcon,
-  ServerStackIcon,
-  RectangleStackIcon,
-} from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
-import MessagesCard from "./pages/dashboard/MessagesCard";
+import { Home, Profile, Tables, Notifications, MessagesCard } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import { CiGrid42 } from "react-icons/ci";
 import { UserGroupIcon } from "@heroicons/react/24/solid";
@@ -48,9 +42,8 @@ export const routes = [
       {
         icon: <IoMdSettings {...icon} />,
         name: "Message Card",
-        path: "/MessagesCard",
+        path: "/messagesCard",
         element: <MessagesCard />,
-        hidden: true, // Marked as hidden
       },
     ],
   },
@@ -62,16 +55,15 @@ export const routes = [
         name: "Logout",
         path: "/sign-in",
         element: <SignIn />,
-      }
-     
+      },
     ],
   },
 ];
 
-// Filter out hidden routes dynamically for navigation purposes
+// Filter out the hidden routes for navigation purposes
 const visibleRoutes = routes.map((route) => ({
   ...route,
-  pages: route.pages.filter((page) => !page.hidden),
+  pages: route.pages.filter((page) => !page.hidden), // Remove hidden routes
 }));
 
 export default visibleRoutes;

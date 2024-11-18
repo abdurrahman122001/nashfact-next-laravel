@@ -36,7 +36,7 @@ export function Tables() {
       ) : (
         <><div className="profile-container w-full p-10 flex flex-col md:flex-row items-start justify-start space-x-8">
             {/* Left Column: Profile Image and Info */}
-            <div className="rounded-lg mb-4 pb-8 shadow-md bg-white" style={{width: '20%'}}>
+            <div className="animate-fadeInLeft rounded-lg mb-4 pb-8 shadow-md bg-white" style={{width: '20%'}}>
               <img
                 src={Rectange}
                 alt="Organization Logo"
@@ -51,7 +51,7 @@ export function Tables() {
             </div>
 
             {/* Right Column: Profile Details */}
-            <div className="profile-details flex-1 bg-white rounded-lg p-10 shadow-md" style={{width: '80%'}}>
+            <div className="animate-fadeInRight profile-details flex-1 bg-white rounded-lg p-10 shadow-md" style={{width: '80%'}}>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label style={{fontFamily: 'Poppins'}} className="block font-semibold text-gray-600">Name</label>
@@ -78,7 +78,7 @@ export function Tables() {
 
           </div><div className="text-right">
               <button
-                className="text-white px-12 py-6 rounded-full hover:bg-yellow-600 transition mr-5"
+                className="animate-fadeInUp text-white px-12 py-6 rounded-full hover:bg-yellow-600 transition mr-5"
                 style={{backgroundColor: '#fc8c11'}}
                 onClick={handleEdit}
               >

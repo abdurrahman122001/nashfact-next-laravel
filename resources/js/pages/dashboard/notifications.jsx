@@ -48,7 +48,7 @@ export function Notifications() {
   return (
     <div className="w-full p-6 bg-white rounded-lg shadow-md text-gray-800 mt-10">
       {/* Update Notification Section */}
-      <div className="flex mt-4 p-4 mb-6 rounded-md">
+      <div className="flex mt-4 p-4 mb-6 rounded-md animate-fadeInLeft">
         <div className="flex items-center w-[70%]">
           {/* Profile Image */}
           <img
@@ -68,7 +68,7 @@ export function Notifications() {
           </div>
         </div>
 
-        <div className="w-[30%] p-3 mt-4 bg-white shadow-lg flex justify-between px-4">
+        <div className="w-[30%] p-3 mt-4 bg-white shadow-lg flex justify-between px-4 animate-fadeInRight">
           <div className="space-y-2 p-5 rounded-lg">
             <p style={{ fontFamily: 'Poppins', fontSize: '16px' }} className="text-black font-semibold">Update Available!</p>
             <p style={{ fontFamily: 'Poppins', fontSize: '16px' }} className="text-sm text-black-200 rounded-sm">Update to the latest version.</p>
@@ -82,7 +82,7 @@ export function Notifications() {
       {/* Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column */}
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fadeInLeft">
           {/* Account Section */}
           <div>
             <h3 className="text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: 'Poppins', fontSize: '16px' }}>Account</h3>
@@ -158,7 +158,7 @@ export function Notifications() {
         </div>
 
         {/* Right Column */}
-        <div className="space-y-6" style={{ marginTop: '50px' }}>
+        <div className="space-y-6 animate-fadeInRight" style={{ marginTop: '50px' }}>
           {/* Theme Section */}
           <div>
             <h3 className="text-sm font-semibold text-gray-600 mb-2" style={{ fontFamily: 'Poppins', fontSize: '16px' }}>Theme</h3>

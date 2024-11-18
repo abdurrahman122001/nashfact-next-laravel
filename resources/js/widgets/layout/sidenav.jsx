@@ -1,12 +1,8 @@
 import PropTypes from "prop-types";
 import { Link, NavLink } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import img2 from '../../../img/logo.png';
-import {
-  Button,
-  IconButton,
-  Typography,
-} from "@material-tailwind/react";
+import img2 from "../../../img/logo.png";
+import { Button, IconButton, Typography } from "@material-tailwind/react";
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
 import React from "react";
 
@@ -35,13 +31,13 @@ export function Sidenav({ brandImg, brandName, routes }) {
     <aside
       className={`${sidenavTypes[sidenavType]} ${openSidenav ? "translate-x-0" : "-translate-x-80"} fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
     >
-      <div className="relative" style={{alignItems: 'center'}}>
+      <div className="relative" style={{ alignItems: "center" }}>
         <Link to="/" className="py-6 px-8 text-center">
           <img
             src={img2}
             alt="Brand Logo"
             className="h-12 w-full ml-3"
-            style={{height: '50px', width: '90%'}}
+            style={{ height: "50px", width: "90%" }}
           />
         </Link>
 
@@ -70,7 +66,8 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 </Typography>
               </li>
             )}
-            {pages.map(({ icon, name, path }) => (
+            {/* Show only the first 4 pages */}
+            {pages.slice(0, 4).map(({ icon, name, path }) => (
               <li key={name}>
                 <NavLink to={`/${layout}${path}`}>
                   {({ isActive }) => (
@@ -80,15 +77,10 @@ export function Sidenav({ brandImg, brandName, routes }) {
                       className={`flex items-center gap-4 px-4 capitalize ${isActive ? "bg-[#fff2d4]" : ""}`}
                       fullWidth
                     >
-                      <span
-                        className={`${isActive ? "text-black" : "text-black"} h-6 w-6`} // Set the icon color to black and increase size
-                      >
+                      <span className={`${isActive ? "text-black" : "text-black"} h-6 w-6`}>
                         {React.cloneElement(icon, { className: "h-6 w-6 text-black" })}
                       </span>
-                      <Typography
-                        color={isActive ? "black" : "inherit"}
-                        className="font-medium capitalize"
-                      >
+                      <Typography color={isActive ? "black" : "inherit"} className="font-medium capitalize">
                         {name}
                       </Typography>
                     </Button>

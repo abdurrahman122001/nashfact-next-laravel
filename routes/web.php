@@ -14,6 +14,10 @@ use App\Http\Controllers\AppController;
 |
 */
 
+Route::get('/', function () {
+    return view('app');
+});
+
 Route::get('/dashboard/home', function () {
     return view('app');
 });

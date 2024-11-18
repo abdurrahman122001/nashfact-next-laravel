@@ -3,7 +3,7 @@ import axios from "axios";
 import Messages from "../../../img/messages.png"; // Ensure the path is correct
 import { IoMailOutline } from "react-icons/io5";
 
-const MessagesCard = () => {
+export function MessagesCard() {
   const [messages, setMessages] = useState([]);
   const [filteredMessages, setFilteredMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,11 +80,31 @@ const MessagesCard = () => {
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg p-2 text-gray-700"
+          className="custom-select"
+          style={{
+            backgroundColor: '#fff2d4',
+            color: 'black',
+            border: 'none',
+            padding: '20px 30px', // Adjusted padding to reduce spacing
+            borderRadius: '40px',
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            position: 'relative',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            backgroundImage: `url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgdmlld0JveD0iMCAwIDEyIDEyIj48cGF0aCBkPSJNMyAzLjVoNi41bC01IDUtNS01eiIgZmlsbD0iIzAwMCIvPjwvc3ZnPg==')`, // Inline SVG arrow
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'calc(100% - 10px) center', // Adjusted position for less gap
+            backgroundSize: '8px', // Reduced size for the arrow
+          }}
         >
           <option value="thisWeek">This Week</option>
           <option value="lastWeek">Last Week</option>
         </select>
+
+
       </div>
       <div className="flex flex-col gap-4">
         {filteredMessages.length > 0 ? (
@@ -131,7 +151,7 @@ const MessagesCard = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default MessagesCard;
