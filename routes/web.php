@@ -18,7 +18,11 @@ Route::get('/', function () {
     return view('app');
 });
 
-// Route::get('/dashboard/home', function () {
-//     return view('app');
-// });
+Route::get('/dashboard/home', function () {
+    return view('app');
+});
+
+Route::get('/auth/reset-password', function () {
+    return view('auth.reset-password');
+});
 

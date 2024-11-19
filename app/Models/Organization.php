@@ -19,6 +19,15 @@ class Organization extends Model
         'contact_email',
         'contact_phone',
         'monthly_plan',
+        'manager_name',
+        'manager_phone',
+        'website',
+        'address',
+        'address2',
+        'state',
+        'city',
+        'country',
+        'zip_code',
     ];
 
     // Optionally, specify the attributes that should be cast to a particular type

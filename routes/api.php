@@ -28,8 +28,11 @@ Route::put('/organizations/{id}', [OrganizationController::class, 'update']);
 
 Route::get('/admins', [AdminController::class, 'index']);
 Route::post('/admins', [AdminController::class, 'store']);
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::get('/admins/{id}', [AdminController::class, 'show']);
 Route::put('/admins/{id}', [AdminController::class, 'update']);

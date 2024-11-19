@@ -7,6 +7,7 @@ import img from "../../../img/logo.png";
 import { RxEyeClosed } from "react-icons/rx";
 import { RxEyeOpen } from "react-icons/rx";
 import backgroundImage from "../../../img/bg-2.jpg"; // Replace with the correct path to your background image
+import { Link } from 'react-router-dom'; // Import Link
 
 export function SignIn() {
   const [email, setEmail] = useState("");
@@ -73,6 +74,11 @@ export function SignIn() {
       console.error("Verification failed:", error);
       alert("Invalid verification code");
     }
+  };
+  const logout = () => {
+    setToken(null);
+    localStorage.removeItem('token');
+    navigate('/sign-in'); // Redirect to login page after logout
   };
 
   const formatTime = () => {
@@ -142,9 +148,16 @@ export function SignIn() {
                     }
                     containerProps={{ className: "-ml-2.5" }}
                   />
-                  <button type="button" className="text-sm text-blue-600 hover:underline" style={{ fontFamily: 'Poppins', color: '#fc8c11' }}>
-                    Forgot Password?
-                  </button>
+                  <Link to="/auth/forgotPassword">
+                    <button
+                      type="button"
+                      className="text-sm hover:underline"
+                      style={{ fontFamily: 'Poppins', color: '#fc8c11' }}
+                    >
+                      Forgot Password?
+                    </button>
+                  </Link>
+
                 </div>
               </>
             ) : (
@@ -172,7 +185,7 @@ export function SignIn() {
                 onClick={handleLogin}
                 fullWidth
                 className="hover:bg-orange-700 text-white font-medium mt-5 py-5 rounded-full focus:outline-none"
-                style={{fontFamily: 'Poppins', backgroundColor: '#fc8c11', letterSpacing: '2px', fontSize: '14px'}}
+                style={{ fontFamily: 'Poppins', backgroundColor: '#fc8c11', letterSpacing: '2px', fontSize: '14px' }}
               >
                 Log In
               </Button>

@@ -10,26 +10,35 @@ export function Sidenav({ brandImg, brandName, routes }) {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavColor, sidenavType, openSidenav } = controller;
 
-  // Define valid background color classes for sidenavType
   const sidenavTypes = {
     dark: "bg-gradient-to-br from-gray-800 to-gray-900",
     white: "bg-white shadow-sm",
     transparent: "bg-transparent",
   };
 
-  // Valid button colors based on sidenavType
   const buttonColors = {
-    dark: "white", // For dark sidenav, use white button color
-    white: "blue-gray", // For white sidenav, use blue-gray button color
-    transparent: "blue-gray", // For transparent sidenav, use blue-gray button color
+    dark: "white",
+    white: "blue-gray",
+    transparent: "blue-gray",
   };
 
-  // Use all routes (no filtering)
-  const allRoutes = routes;
+  const topRoutes = routes
+  .map((route) => {
+    if (route.layout === "dashboard") {
+      return { ...route, pages: route.pages.slice(0, 4) }; // Top 4 for dashboard
+    } else if (route.layout === "auth") {
+      return { ...route, pages: route.pages.slice(0, 1) }; // Top 1 for auth
+    }
+    return route; // Other layouts remain unchanged
+  })
+  .filter((route) => route.pages.length > 0); // Exclude layouts with no pages
+
 
   return (
     <aside
-      className={`${sidenavTypes[sidenavType]} ${openSidenav ? "translate-x-0" : "-translate-x-80"} fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
+      className={`${sidenavTypes[sidenavType]} ${
+        openSidenav ? "translate-x-0" : "-translate-x-80"
+      } fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
     >
       <div className="relative" style={{ alignItems: "center" }}>
         <Link to="/" className="py-6 px-8 text-center">
@@ -53,7 +62,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
         </IconButton>
       </div>
       <div className="m-4">
-        {allRoutes.map(({ layout, title, pages }, key) => (
+        {topRoutes.map(({ layout, title, pages }, key) => (
           <ul key={key} className="mb-4 flex flex-col gap-1">
             {title && (
               <li className="mx-3.5 mt-4 mb-2">
@@ -66,21 +75,33 @@ export function Sidenav({ brandImg, brandName, routes }) {
                 </Typography>
               </li>
             )}
-            {/* Show only the first 4 pages */}
-            {pages.slice(0, 4).map(({ icon, name, path }) => (
+            {pages.map(({ icon, name, path }) => (
               <li key={name}>
                 <NavLink to={`/${layout}${path}`}>
                   {({ isActive }) => (
                     <Button
                       variant={isActive ? "filled" : "text"}
-                      color={isActive ? sidenavColor : buttonColors[sidenavType]}
-                      className={`flex items-center gap-4 px-4 capitalize ${isActive ? "bg-[#fff2d4]" : ""}`}
+                      color={
+                        isActive ? sidenavColor : buttonColors[sidenavType]
+                      }
+                      className={`flex items-center gap-4 px-4 capitalize ${
+                        isActive ? "bg-[#fff2d4]" : ""
+                      }`}
                       fullWidth
                     >
-                      <span className={`${isActive ? "text-black" : "text-black"} h-6 w-6`}>
-                        {React.cloneElement(icon, { className: "h-6 w-6 text-black" })}
+                      <span
+                        className={`${
+                          isActive ? "text-black" : "text-black"
+                        } h-6 w-6`}
+                      >
+                        {React.cloneElement(icon, {
+                          className: "h-6 w-6 text-black",
+                        })}
                       </span>
-                      <Typography color={isActive ? "black" : "inherit"} className="font-medium capitalize">
+                      <Typography
+                        color={isActive ? "black" : "inherit"}
+                        className="font-medium capitalize"
+                      >
                         {name}
                       </Typography>
                     </Button>
@@ -94,18 +115,3 @@ export function Sidenav({ brandImg, brandName, routes }) {
     </aside>
   );
 }
-
-Sidenav.defaultProps = {
-  brandImg: "/img/logo.png",
-  brandName: "Employee Management",
-};
-
-Sidenav.propTypes = {
-  brandImg: PropTypes.string,
-  brandName: PropTypes.string,
-  routes: PropTypes.arrayOf(PropTypes.object).isRequired,
-};
-
-Sidenav.displayName = "/src/widgets/layout/sidenav.jsx";
-
-export default Sidenav;

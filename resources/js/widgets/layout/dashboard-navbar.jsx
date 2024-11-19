@@ -18,25 +18,12 @@ import { MdPersonOutline, MdLockOutline, MdLogout } from "react-icons/md"; // Re
 import { MdNotificationsNone } from "react-icons/md";
 import { Bars3Icon } from "@heroicons/react/24/solid";
 import { useMaterialTailwindController, setOpenSidenav } from "@/context";
-import MessagesCard from "../../pages/dashboard/messagesCard";
-import SignIn from "../../pages/auth/sign-in";
-
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
-  const [activeComponent, setActiveComponent] = useState(null);
   const navigate = useNavigate();
-
-  // const renderComponent = () => {
-  //   if (activeComponent === "") {
-  //     return <MessagesCard />;
-  //   } else if (activeComponent === "SignIn") {
-  //     return <SignIn />;
-  //   }
-  //   return null;
-  // };
 
   return (
     <div>

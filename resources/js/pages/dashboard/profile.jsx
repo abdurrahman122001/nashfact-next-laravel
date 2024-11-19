@@ -12,6 +12,19 @@ export function Profile() {
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [formData, setFormData] = useState({
     date_signed_up: '',
+    company_name: '',
+    contact_email: '',
+    contact_phone: '',
+    monthly_plan: 'Pending',
+    manager_name: '',
+    manager_phone: '',
+    website: '',
+    address: '',
+    address2: '',
+    state: '',
+    city: '',
+    country: '',
+    zip_code: '',
   });
 
   useEffect(() => {
@@ -36,6 +49,19 @@ export function Profile() {
       alert(response.data.message);
       setFormData({
         date_signed_up: '',
+        company_name: '',
+        contact_email: '',
+        contact_phone: '',
+        monthly_plan: 'Pending',
+        manager_name: '',
+        manager_phone: '',
+        website: '',
+        address: '',
+        address2: '',
+        state: '',
+        city: '',
+        country: '',
+        zip_code: '',
       });
       setIsOpen(false);
       axios
@@ -112,7 +138,7 @@ export function Profile() {
                     <img src={img} style={{ height: '25px' }} alt="Organization Icon" />
                     <h3 className="text-xl font-semibold text-gray-800">{org.company_name}</h3>
                   </div>
-                  <p className="text-gray-500 text-sm mt-3">{org.location || 'Location not specified'}</p>
+                  <p className="text-gray-500 text-sm mt-3">{org.address || 'Location not specified'}</p>
                 </div>
                 <PencilSquareIcon
                   className="h-6 w-6 text-orange-500 cursor-pointer"
@@ -172,6 +198,7 @@ export function Profile() {
                     Add Organization
                   </Dialog.Title>
                   <form onSubmit={handleSubmit} className="mt-4">
+                    {/* Fields */}
                     <div className="mb-4">
                       <label className="block text-gray-700">Date Signed Up</label>
                       <input
@@ -179,7 +206,6 @@ export function Profile() {
                         name="date_signed_up"
                         value={formData.date_signed_up}
                         onChange={handleChange}
-                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       />
                     </div>
@@ -190,7 +216,6 @@ export function Profile() {
                         name="company_name"
                         value={formData.company_name}
                         onChange={handleChange}
-                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       />
                     </div>
@@ -201,7 +226,6 @@ export function Profile() {
                         name="contact_email"
                         value={formData.contact_email}
                         onChange={handleChange}
-                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       />
                     </div>
@@ -212,7 +236,6 @@ export function Profile() {
                         name="contact_phone"
                         value={formData.contact_phone}
                         onChange={handleChange}
-                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       />
                     </div>
@@ -222,7 +245,6 @@ export function Profile() {
                         name="monthly_plan"
                         value={formData.monthly_plan}
                         onChange={handleChange}
-                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                       >
                         <option value="Pending">Pending</option>
@@ -230,12 +252,112 @@ export function Profile() {
                         <option value="Expired">Expired</option>
                       </select>
                     </div>
-                    <button
-                      type="submit"
-                      className="w-full py-2 px-4 text-white font-semibold rounded-lg bg-orange-500 hover:bg-orange-600"
-                    >
-                      Submit
-                    </button>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Manager Name</label>
+                      <input
+                        type="text"
+                        name="manager_name"
+                        value={formData.manager_name}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Manager Phone</label>
+                      <input
+                        type="text"
+                        name="manager_phone"
+                        value={formData.manager_phone}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Website</label>
+                      <input
+                        type="url"
+                        name="website"
+                        value={formData.website}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Address</label>
+                      <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Address Line 2</label>
+                      <input
+                        type="text"
+                        name="address2"
+                        value={formData.address2}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">State</label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">City</label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Country</label>
+                      <input
+                        type="text"
+                        name="country"
+                        value={formData.country}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700">Zip Code</label>
+                      <input
+                        type="text"
+                        name="zip_code"
+                        value={formData.zip_code}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+
+                    <div className="mt-6 flex justify-between">
+                      <button
+                        type="button"
+                        onClick={() => setIsOpen(false)}
+                        className="px-4 py-2 rounded-md text-gray-600 border border-gray-300 hover:bg-gray-100"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                      >
+                        Save
+                      </button>
+                    </div>
                   </form>
                 </Dialog.Panel>
               </Transition.Child>
@@ -246,5 +368,3 @@ export function Profile() {
     </div>
   );
 }
-
-export default Profile;

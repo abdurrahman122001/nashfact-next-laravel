@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Ensure axios is imported
+import axios from 'axios';
 import img from '../../../img/img-3.png';
 import img2 from '../../../img/Vector.png';
 
 export default function EditOrganization({ organization, onBack, onSave }) {
-  // Set up form state with default values
   const [formData, setFormData] = useState({
     company_name: organization.company_name || '',
+    contact_email: organization.contact_email || '',
+    contact_phone: organization.contact_phone || '',
+    monthly_plan: organization.monthly_plan || 'Pending',
     manager_name: organization.manager_name || '',
-    phone: organization.phone || '',
     manager_phone: organization.manager_phone || '',
     website: organization.website || '',
     address: organization.address || '',
@@ -22,7 +23,6 @@ export default function EditOrganization({ organization, onBack, onSave }) {
 
   const [organizations, setOrganizations] = useState([]);
 
-  // Fetch organization list from API
   useEffect(() => {
     axios
       .get('/api/organizations')
@@ -30,7 +30,6 @@ export default function EditOrganization({ organization, onBack, onSave }) {
       .catch((error) => console.error('Error fetching organizations:', error));
   }, []);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -39,15 +38,16 @@ export default function EditOrganization({ organization, onBack, onSave }) {
     }));
   };
 
-  // Handle saving the updated organization data
   const handleSave = () => {
     axios
       .put(`/api/organizations/${organization.id}`, formData)
       .then((response) => {
         console.log(response.data.message);
-        onSave(response.data.organization); // Optional: update the state after saving
+        onSave(response.data.organization);
       })
-      .catch((error) => console.error('Error updating organization:', error));
+      .catch((error) => {
+        console.error('Error updating organization:', error);
+      });
   };
 
   return (
@@ -55,9 +55,7 @@ export default function EditOrganization({ organization, onBack, onSave }) {
       <h2 className="text-xl font-semibold mb-6">Organization Information</h2>
 
       <div className="flex gap-6">
-        {/* Left Column */}
         <div className="mx-auto animate-fadeInLeft" style={{ width: '25%' }}>
-          {/* Organization Card */}
           <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
             <img
               src={img}
@@ -77,7 +75,6 @@ export default function EditOrganization({ organization, onBack, onSave }) {
             </div>
           </div>
 
-          {/* License Upload Box */}
           <div className="bg-gray-50 border-dashed border-2 border-gray-300 p-4 rounded-lg flex flex-col items-center">
             <p className="mb-2 font-medium text-gray-600">License</p>
             <label
@@ -103,13 +100,13 @@ export default function EditOrganization({ organization, onBack, onSave }) {
           </div>
         </div>
 
-        {/* Right Column */}
         <div className="grid grid-cols-2 gap-4 animate-fadeInRight" style={{ width: '75%' }}>
           {[ 
             { name: 'company_name', placeholder: "Organization's Name" },
-            { name: 'date_signed_up', placeholder: 'Date Signed Up' },
+            { name: 'contact_email', placeholder: 'Contact Email' },
+            { name: 'contact_phone', placeholder: 'Contact Phone' },
+            { name: 'monthly_plan', placeholder: 'Monthly Plan' },
             { name: 'manager_name', placeholder: "Manager's Name" },
-            { name: 'phone', placeholder: 'Phone Number' },
             { name: 'manager_phone', placeholder: "Manager's Phone Number" },
             { name: 'website', placeholder: "Organization's Website" },
             { name: 'address', placeholder: 'Address' },
@@ -118,6 +115,7 @@ export default function EditOrganization({ organization, onBack, onSave }) {
             { name: 'city', placeholder: 'City' },
             { name: 'country', placeholder: 'Country' },
             { name: 'zip_code', placeholder: 'Zip Code' },
+            { name: 'date_signed_up', placeholder: 'Date Signed Up' },
           ].map(({ name, placeholder }) => (
             <input
               key={name}
@@ -136,7 +134,6 @@ export default function EditOrganization({ organization, onBack, onSave }) {
         </div>
       </div>
 
-      {/* Centered Update Profile Button */}
       <div className="flex justify-center mt-6">
         <button
           onClick={handleSave}

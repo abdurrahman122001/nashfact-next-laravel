@@ -72,6 +72,7 @@ export function Home() {
           animationDelay={0.5}
         />
       </div>
+      <h1>Hello world</h1>
 
       <div style={{ width: '80%', marginLeft: '60px' }}>
         <h2 className="text-lg animate-fadeInUp font-semibold text-gray-800 mb-4" style={{ fontFamily: 'Poppins' }}>Recent</h2>
