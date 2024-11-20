@@ -21,6 +21,7 @@ class OrganizationController extends Controller
             'date_signed_up' => 'required|date',
             'company_name' => 'required|string|max:255',
             'contact_email' => 'required|email|max:255',
+            'password' => 'required|string|min:8', // New validation rule
             'contact_phone' => 'required|string|max:20',
             'monthly_plan' => 'required|in:Pending,Active,Expired',
             'manager_name' => 'nullable|string|max:255',
@@ -34,6 +35,9 @@ class OrganizationController extends Controller
             'zip_code' => 'nullable|string|max:20',
         ]);
 
+        // Hash the password before saving
+        $validatedData['password'] = bcrypt($validatedData['password']);
+
         // Create a new organization using the validated data
         $organization = Organization::create($validatedData);
 
@@ -43,6 +47,7 @@ class OrganizationController extends Controller
             'organization' => $organization,
         ], 201);
     }
+
 
     public function update(Request $request, $id)
     {

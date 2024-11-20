@@ -30,29 +30,60 @@ export function ResetPassword() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
       style={{
-        backgroundImage:  `url(${backgroundImage})`,
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
     >
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-800">
+      <div
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '15px',
+          padding: '2rem',
+          maxWidth: '400px',
+          width: '100%',
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <h2
+            style={{
+              fontSize: '1.75rem',
+              fontWeight: 'bold',
+              color: '#333333',
+              fontFamily: 'Poppins'
+            }}
+          >
             Set New Password
           </h2>
-          <p className="text-sm text-gray-500">Set your password for log in.</p>
+          <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem', fontFamily: 'Poppins' }}>
+            Set your password for log in.
+          </p>
         </div>
         {message && (
-          <p className="text-center text-red-500 mt-2">{message}</p>
+          <p style={{ textAlign: 'center', color: 'red', marginBottom: '1rem' }}>
+            {message}
+          </p>
         )}
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Hidden Email Field */}
-          <input type="hidden" value={token} onChange={() => {}} />
+          <input type="hidden" value={token} onChange={() => { }} />
 
           <div>
             <label
               htmlFor="new-password"
-              className="block text-sm font-medium text-gray-700"
+              style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                color: '#4B5563',
+                marginBottom: '0.5rem',
+                fontFamily: 'Poppins'
+              }}
             >
               New Password
             </label>
@@ -62,14 +93,28 @@ export function ResetPassword() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              style={{
+                width: '100%',
+                border: '1px solid #d1d5db',
+                borderRadius: '50px',
+                padding: '20px',
+                fontSize: '1rem',
+                transition: 'border-color 0.3s ease',
+              }}
             />
           </div>
 
           <div>
             <label
               htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700"
+              style={{
+                display: 'block',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                color: '#4B5563',
+                marginBottom: '0.5rem',
+                fontFamily: 'Poppins'
+              }}
             >
               Confirm New Password
             </label>
@@ -79,13 +124,33 @@ export function ResetPassword() {
               value={passwordConfirmation}
               onChange={(e) => setPasswordConfirmation(e.target.value)}
               required
-              className="mt-1 w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              style={{
+                width: '100%',
+                border: '1px solid #d1d5db',
+                borderRadius: '50px',
+                padding: '20px',
+                fontSize: '1rem',
+                transition: 'border-color 0.3s ease',
+              }}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-orange-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-1"
+            style={{
+              width: '100%',
+              backgroundColor: '#fc8c11',
+              color: '#ffffff',
+              borderRadius: '50px',
+              padding: '20px',
+              border: 'none',
+              fontWeight: '500',
+              textAlign: 'center',
+              cursor: 'pointer',
+              fontFamily: 'Poppins'
+            }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = '#e55307')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#f97316')}
           >
             Set Password
           </button>

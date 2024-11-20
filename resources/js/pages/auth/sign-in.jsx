@@ -4,13 +4,12 @@ import { useAuth } from "../../AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography, Checkbox } from "@material-tailwind/react";
 import img from "../../../img/logo.png";
-import { RxEyeClosed } from "react-icons/rx";
-import { RxEyeOpen } from "react-icons/rx";
+import { RxEyeClosed, RxEyeOpen } from "react-icons/rx";
 import backgroundImage from "../../../img/bg-2.jpg"; // Replace with the correct path to your background image
 import { Link } from 'react-router-dom'; // Import Link
 
 export function SignIn() {
-  const [email, setEmail] = useState("");
+  const [contact_email, setContactEmail] = useState(""); // Fixed to match email state variable
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]); // Adjusted for 6 digits
@@ -34,7 +33,7 @@ export function SignIn() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8000/api/login", { email, password });
+      const response = await axios.post("http://localhost:8000/api/login", { contact_email, password });
       setIsCodeSent(true);
       setTimer(60); // Reset timer to 1 minute when code is sent
       console.log("Verification code:", response.data.verificationCode); // For debugging
@@ -65,7 +64,7 @@ export function SignIn() {
       const verificationCode = otp.join(""); // Combine the OTP digits
       const response = await axios.post("http://localhost:8000/api/verify-code", {
         code: verificationCode,
-        email,
+        contact_email,
       });
       const token = response.data.token;
       login(token);
@@ -74,11 +73,6 @@ export function SignIn() {
       console.error("Verification failed:", error);
       alert("Invalid verification code");
     }
-  };
-  const logout = () => {
-    setToken(null);
-    localStorage.removeItem('token');
-    navigate('/sign-in'); // Redirect to login page after logout
   };
 
   const formatTime = () => {
@@ -93,7 +87,7 @@ export function SignIn() {
         <div className="w-full max-w-md flex items-center justify-center flex-col">
           <Typography variant="h2" className="text-3xl text-center mb-2" style={{ fontFamily: 'Poppins', fontWeight: '10px' }}>Account Log In</Typography>
           <Typography variant="paragraph" style={{ color: '#FC8C10', fontFamily: 'Poppins' }} className="text-center text-lg mb-6">
-            {isCodeSent ? `Enter the 6 digit code sent to you at ******${email.slice(-3)}@example.com` : "Log in to your account"}
+            {isCodeSent ? `Enter the 6 digit code sent to you at ******${contact_email.slice(-3)}@example.com` : "Log in to your account"}
           </Typography>
 
           <form className="space-y-6 w-full">
@@ -104,8 +98,8 @@ export function SignIn() {
                   <input
                     type="email"
                     placeholder="name@mail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={contact_email}
+                    onChange={(e) => setContactEmail(e.target.value)}
                     className="w-full bg-gray-100 px-6 py-5 rounded-full focus:outline-none focus:ring-0 focus:shadow-none"
                     style={{
                       border: 'none',
@@ -157,7 +151,6 @@ export function SignIn() {
                       Forgot Password?
                     </button>
                   </Link>
-
                 </div>
               </>
             ) : (
@@ -210,20 +203,9 @@ export function SignIn() {
           <div className="absolute top-12 right-0 bg-white p-2 flex" style={{ width: '60%', padding: '40px', borderTopLeftRadius: '50px', borderBottomLeftRadius: '50px' }}>
             <img src={img} alt="Logo" className="w-60" />
           </div>
-          <div className="flex flex-col items-start justify-center space-y-4">
-            <Typography variant="h4" className="font-400" style={{ fontFamily: 'Poppins' }}>
-              Welcome Back
-            </Typography>
-            <p className="text-sm max-w-xs" style={{ fontFamily: 'Poppins' }}>
-              Lorem ipsum is a placeholder text commonly used to demonstrate the
-              visual form of a document or a typeface without relying on
-              meaningful content.
-            </p>
-          </div>
         </div>
       )}
     </div>
   );
 }
 
-export default SignIn;

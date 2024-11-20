@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Profile, Tables, Notifications, MessagesCard } from "@/pages/dashboard";
+import { Home, Profile, Tables, Notifications, MessagesCard, AddOrganization } from "@/pages/dashboard";
 import { SignIn, ForgotPassword, ResetPassword } from "@/pages/auth";
 import { CiGrid42 } from "react-icons/ci";
 import { UserGroupIcon } from "@heroicons/react/24/solid";
@@ -35,7 +35,7 @@ const routes = [
       },
       {
         icon: <UserGroupIcon {...icon} />,
-        name: "Add Organization",
+        name: "Add Employee",
         path: "/profile",
         element: <Profile />,
       },
@@ -56,6 +56,12 @@ const routes = [
         name: "Message Card",
         path: "/messagesCard",
         element: <MessagesCard />,
+      },
+      {
+        icon: <IoMdSettings {...icon} />,
+        name: "Message Card",
+        path: "/AddOrganization",
+        element: <AddOrganization />,
       },
     ],
   },

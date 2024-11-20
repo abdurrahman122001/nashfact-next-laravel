@@ -1,4 +1,4 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ResetPassword from './ResetPassword';
+import ResetPassword from './resetPassword';
 ReactDOM.render(<ResetPassword />, document.getElementById('app2'));

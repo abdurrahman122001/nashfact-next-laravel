@@ -1,76 +1,26 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import React, { useState, useEffect } from 'react';
 import { PlusIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import img from '../../../img/vector.png';
 import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom'; // For navigation
+
 import EditOrganization from './EditOrganization';
 import OrganizationDetails from './OrganizationDetails';
 
 export function Profile() {
   const [organizations, setOrganizations] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState(null);
-  const [formData, setFormData] = useState({
-    date_signed_up: '',
-    company_name: '',
-    contact_email: '',
-    contact_phone: '',
-    monthly_plan: 'Pending',
-    manager_name: '',
-    manager_phone: '',
-    website: '',
-    address: '',
-    address2: '',
-    state: '',
-    city: '',
-    country: '',
-    zip_code: '',
-  });
+  const navigate = useNavigate();
 
   useEffect(() => {
+    fetchOrganizations();
+  }, []);
+
+  const fetchOrganizations = () => {
     axios
       .get('/api/organizations')
       .then((response) => setOrganizations(response.data))
       .catch((error) => console.error('Error fetching organizations:', error));
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('/api/organizations', formData);
-      alert(response.data.message);
-      setFormData({
-        date_signed_up: '',
-        company_name: '',
-        contact_email: '',
-        contact_phone: '',
-        monthly_plan: 'Pending',
-        manager_name: '',
-        manager_phone: '',
-        website: '',
-        address: '',
-        address2: '',
-        state: '',
-        city: '',
-        country: '',
-        zip_code: '',
-      });
-      setIsOpen(false);
-      axios
-        .get('/api/organizations')
-        .then((response) => setOrganizations(response.data));
-    } catch (error) {
-      console.error('Error adding organization:', error);
-      alert('Failed to add organization');
-    }
   };
 
   const handleEditClick = (e, org) => {
@@ -99,14 +49,15 @@ export function Profile() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Organizations</h2>
-        <button
-          onClick={() => setIsOpen(true)}
-          className="flex items-center px-8 py-4 rounded-full hover:bg-yellow-300"
-          style={{ backgroundColor: '#fff2d4', color: '#fc8c11' }}
-        >
-          <PlusIcon className="h-5 w-5 mr-2 text-orange-500" />
-          Add New
-        </button>
+        <Link to="/dashboard/AddOrganization">
+          <button
+            className="flex items-center px-8 py-4 rounded-full hover:bg-yellow-300"
+            style={{ backgroundColor: '#fff2d4', color: '#fc8c11' }}
+          >
+            <PlusIcon className="h-5 w-5 mr-2 text-orange-500" />
+            Add New
+          </button>
+        </Link>
       </div>
       <p className="text-gray-500 mb-6">Manage all organization details and organization hierarchy</p>
 
@@ -167,204 +118,6 @@ export function Profile() {
           ))}
         </div>
       )}
-
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex items-center justify-center min-h-full p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                    Add Organization
-                  </Dialog.Title>
-                  <form onSubmit={handleSubmit} className="mt-4">
-                    {/* Fields */}
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Date Signed Up</label>
-                      <input
-                        type="date"
-                        name="date_signed_up"
-                        value={formData.date_signed_up}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Company Name</label>
-                      <input
-                        type="text"
-                        name="company_name"
-                        value={formData.company_name}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Contact Email</label>
-                      <input
-                        type="email"
-                        name="contact_email"
-                        value={formData.contact_email}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Contact Phone</label>
-                      <input
-                        type="text"
-                        name="contact_phone"
-                        value={formData.contact_phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Monthly Plan</label>
-                      <select
-                        name="monthly_plan"
-                        value={formData.monthly_plan}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Active">Active</option>
-                        <option value="Expired">Expired</option>
-                      </select>
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Manager Name</label>
-                      <input
-                        type="text"
-                        name="manager_name"
-                        value={formData.manager_name}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Manager Phone</label>
-                      <input
-                        type="text"
-                        name="manager_phone"
-                        value={formData.manager_phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Website</label>
-                      <input
-                        type="url"
-                        name="website"
-                        value={formData.website}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Address</label>
-                      <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Address Line 2</label>
-                      <input
-                        type="text"
-                        name="address2"
-                        value={formData.address2}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">State</label>
-                      <input
-                        type="text"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">City</label>
-                      <input
-                        type="text"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Country</label>
-                      <input
-                        type="text"
-                        name="country"
-                        value={formData.country}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700">Zip Code</label>
-                      <input
-                        type="text"
-                        name="zip_code"
-                        value={formData.zip_code}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-
-                    <div className="mt-6 flex justify-between">
-                      <button
-                        type="button"
-                        onClick={() => setIsOpen(false)}
-                        className="px-4 py-2 rounded-md text-gray-600 border border-gray-300 hover:bg-gray-100"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </form>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
     </div>
   );
 }

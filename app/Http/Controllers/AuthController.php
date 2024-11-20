@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin;
+use App\Models\Organization;
 use App\Mail\VerificationCodeMail;
+use App\Mail\ResetPasswordMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -12,95 +13,101 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    /**
+     * Handle organization login and send a verification code.
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'contact_email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $admin = Admin::where('email', $request->email)->first();
+        $organization = Organization::where('contact_email', $request->contact_email)->first();
 
-        if ($admin && Hash::check($request->password, $admin->password)) {
-            $verificationCode = rand(100000, 999999); // Generate a 6-digit code
-            Log::info("Verification Code for {$admin->email}: " . $verificationCode);
+        if ($organization && Hash::check($request->password, $organization->password)) {
+            $verificationCode = random_int(100000, 999999); // Generate 6-digit code
+            Log::info("Verification Code for {$organization->contact_email}: {$verificationCode}");
 
-            // Save the verification code to the specific user in the database
-            $admin->verification_code = $verificationCode;
-            $admin->save();
+            $organization->verification_code = $verificationCode;
+            $organization->save();
 
-            // Send the verification code to the user's email
-            Mail::to($admin->email)->send(new VerificationCodeMail($verificationCode));
+            Mail::to($organization->contact_email)->send(new VerificationCodeMail($verificationCode));
 
-            return response()->json([
-                'message' => 'Verification code sent to your email',
-            ], 200);
+            return response()->json(['message' => 'Verification code sent to your email'], 200);
         }
 
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
+    /**
+     * Verify the verification code.
+     */
     public function verifyCode(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'contact_email' => 'required|email',
             'code' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $admin = Admin::where('email', $request->email)->first();
+        $organization = Organization::where('contact_email', $request->contact_email)->first();
 
-        if ($admin && $admin->verification_code == $request->code) {
-            $token = $admin->createToken('authToken')->plainTextToken;
+        if ($organization && $organization->verification_code == $request->code) {
+            $token = $organization->createToken('authToken')->plainTextToken;
 
-            // Clear the verification code after successful verification
-            $admin->verification_code = null;
-            $admin->save();
+            $organization->verification_code = null; // Clear verification code
+            $organization->save();
 
             return response()->json([
                 'message' => 'Code verified successfully',
-                'token' => $token,
+                'token' => $token
             ], 200);
         }
 
         return response()->json(['message' => 'Invalid verification code'], 401);
     }
+
+    /**
+     * Handle forgot password functionality.
+     */
     public function forgotPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'contact_email' => 'required|email',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $admin = Admin::where('email', $request->email)->first();
+        $organization = Organization::where('contact_email', $request->contact_email)->first();
 
-        if (!$admin) {
+        if (!$organization) {
             return response()->json(['message' => 'Email not found'], 404);
         }
 
-        $token = bin2hex(random_bytes(30)); // Generate a random token
-        $admin->password_reset_token = $token;
-        $admin->password_reset_token_expires_at = now()->addHours(1); // Token expires in 1 hour
-        $admin->save();
+        $token = bin2hex(random_bytes(30)); // Generate a strong random token
+        $organization->password_reset_token = $token;
+        $organization->password_reset_token_expires_at = now()->addHour();
+        $organization->save();
 
         $resetLink = url("/auth/reset-password?token={$token}");
-
-        // Send Reset Email
-        Mail::to($admin->email)->send(new \App\Mail\ResetPasswordMail($resetLink));
+        Mail::to($organization->contact_email)->send(new ResetPasswordMail($resetLink));
 
         return response()->json(['message' => 'Reset link sent to your email'], 200);
     }
 
+    /**
+     * Reset the password using the provided token.
+     */
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -109,21 +116,21 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $admin = Admin::where('password_reset_token', $request->token)
+        $organization = Organization::where('password_reset_token', $request->token)
             ->where('password_reset_token_expires_at', '>', now())
             ->first();
 
-        if (!$admin) {
+        if (!$organization) {
             return response()->json(['message' => 'Invalid or expired token'], 400);
         }
 
-        $admin->password = Hash::make($request->password);
-        $admin->password_reset_token = null;
-        $admin->password_reset_token_expires_at = null;
-        $admin->save();
+        $organization->password = Hash::make($request->password);
+        $organization->password_reset_token = null;
+        $organization->password_reset_token_expires_at = null;
+        $organization->save();
 
         return response()->json(['message' => 'Password reset successfully'], 200);
     }
