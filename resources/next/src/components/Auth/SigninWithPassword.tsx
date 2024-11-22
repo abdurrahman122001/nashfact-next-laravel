@@ -19,16 +19,20 @@ export default function SigninWithPassword() {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/login", {
         email: formData.email,
         password: formData.password,
       });
+
       console.log("Login Successful:", response.data);
-      // Handle token or redirection logic here
-      // Example: Save token or redirect to another page
+
+      // Redirect the user to another page
+      if (response.data.success) {
+        window.location.replace("/dashboard"); // Redirect to the dashboard
+      }
     } catch (error) {
       console.error("Login Failed:", error.response?.data || error.message);
     }
