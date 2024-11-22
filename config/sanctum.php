@@ -10,14 +10,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | Requests from the following domains / hosts will receive stateful API
-    | authentication cookies. Typically, these should include your local
-    | and production domains which access your API via a frontend SPA.
+    | authentication cookies. Include local, staging, and production domains
+    | that interact with your API via a frontend SPA or client.
     |
     */
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,mydomain.com,myapp.local',
         Sanctum::currentApplicationUrlWithPort()
     ))),
 
@@ -26,10 +26,9 @@ return [
     | Sanctum Guards
     |--------------------------------------------------------------------------
     |
-    | This array contains the authentication guards that will be checked when
-    | Sanctum is trying to authenticate a request. If none of these guards
-    | are able to authenticate the request, Sanctum will use the bearer
-    | token that's present on an incoming request for authentication.
+    | These authentication guards will be checked by Sanctum when trying to
+    | authenticate a request. Typically, this is set to `web` for first-party
+    | SPA or API-based authentication.
     |
     */
 
@@ -40,37 +39,34 @@ return [
     | Expiration Minutes
     |--------------------------------------------------------------------------
     |
-    | This value controls the number of minutes until an issued token will be
-    | considered expired. This will override any values set in the token's
-    | "expires_at" attribute, but first-party sessions are not affected.
+    | This controls how long issued tokens are valid. If `null`, tokens will
+    | not expire by default. Configure this to enforce token expiration for
+    | enhanced security.
     |
     */
 
-    'expiration' => null,
+    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 120), // Tokens expire after 2 hours (120 minutes)
 
     /*
     |--------------------------------------------------------------------------
     | Token Prefix
     |--------------------------------------------------------------------------
     |
-    | Sanctum can prefix new tokens in order to take advantage of numerous
-    | security scanning initiatives maintained by open source platforms
-    | that notify developers if they commit tokens into repositories.
-    |
-    | See: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning
+    | Sanctum can prefix new tokens for security scanning tools to identify
+    | leaked tokens in public repositories. Customize this prefix as needed.
     |
     */
 
-    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
+    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', 'sanctum_'),
 
     /*
     |--------------------------------------------------------------------------
     | Sanctum Middleware
     |--------------------------------------------------------------------------
     |
-    | When authenticating your first-party SPA with Sanctum you may need to
-    | customize some of the middleware Sanctum uses while processing the
-    | request. You may change the middleware listed below as required.
+    | When authenticating a first-party SPA with Sanctum, customize the
+    | middleware Sanctum uses while processing the request. Adjust these
+    | middleware to match your application's security needs.
     |
     */
 

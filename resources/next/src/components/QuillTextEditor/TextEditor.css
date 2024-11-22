@@ -1,0 +1,64 @@
+/* Custom styles for the text editor */
+.editor-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 20px;
+}
+
+.row-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.column {
+  flex: 0 0 48%; /* Ensure columns take up 48% width, leaving room for gaps */
+  border: 2px solid #888;
+  padding: 16px;
+  background-color: #f9f9f9;
+  min-height: 100px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Optional: Add some styling for the text */
+.column p {
+  margin: 0 0 10px;
+}
+
+/* Style for the file input in columns */
+.column .image-uploader {
+  margin-top: 10px;
+  padding: 6px;
+  font-size: 14px;
+  width: 100%;
+}
+
+/* Add some space in toolbar dropdown */
+.ql-row {
+  border: 1px solid #ddd;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+/* To avoid issues with Quill's default editor styles, use inline-block for text blocks in columns */
+.ql-editor .row-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+}
+
+.ql-editor .column {
+  flex: 0 0 48% !important; /* Ensure each column takes 48% width */
+  display: flex !important;
+  flex-direction: column !important;
+  margin-bottom: 16px !important;
+}
