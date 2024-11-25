@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,10 +9,20 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    // Specify the table name if it doesn't follow Laravel's naming convention
+    protected $table = 'categories';
 
-    public function posts()
-    {
-        return $this->belongsToMany(Post::class);
-    }
+    // Specify the primary key if it is not "id"
+    protected $primaryKey = 'id';
+
+    // Define the fields that are mass assignable
+    protected $fillable = [
+        'name',
+        'category_slug',
+        'created_at',
+        'updated_at',
+    ];
+
+    // Optionally, disable timestamps if not used in the table
+    // public $timestamps = false;
 }

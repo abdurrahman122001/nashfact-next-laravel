@@ -8,7 +8,7 @@ class Thumbnail extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['file_path'];
+    protected $fillable = ['file_path', 'post_id'];
 
     public function post()
     {

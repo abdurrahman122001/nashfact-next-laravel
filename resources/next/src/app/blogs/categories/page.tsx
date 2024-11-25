@@ -1,5 +1,5 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import TableFour from "@/components/Tables/postsTable";
+import BlogsTable from "@/components/Tables/blogsTable";
 
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
@@ -16,7 +16,7 @@ const blogPosts = () => {
 
       <div className="flex flex-col gap-10">
         
-        <TableFour />
+        <BlogsTable />
       </div>
     </DefaultLayout>
   );
