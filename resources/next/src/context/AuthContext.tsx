@@ -1,78 +1,68 @@
-// "use client";
+// src/context/AuthContext.tsx
+import React, { createContext, useState, useEffect, ReactNode } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
 
-// import React, { createContext, useState, useContext, useEffect } from "react";
-// import { useRouter } from "next/navigation";
+// Define User type
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
 
-// interface AuthContextProps {
-//   isAuthenticated: boolean;
-//   user: any;
-//   login: (email: string, password: string) => Promise<void>;
-//   logout: () => void;
-// }
+interface AuthContextProps {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
 
-// const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+export const AuthContext = createContext<AuthContextProps>({
+  user: null,
+  loading: true,
+  login: async () => {},
+  logout: async () => {},
+});
 
-// export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-//   const [isAuthenticated, setIsAuthenticated] = useState(false);
-//   const [user, setUser] = useState<any>(null);
-//   const router = useRouter();
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-//   useEffect(() => {
-//     const token = localStorage.getItem("token");
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-//     if (token) {
-//       fetch("http://127.0.0.1:8000/api/user", {
-//         headers: { Authorization: `Bearer ${token}` },
-//       })
-//         .then((res) => res.json())
-//         .then((data) => {
-//           if (data.id) {
-//             setIsAuthenticated(true);
-//             setUser(data);
-//           } else {
-//             logout();
-//           }
-//         })
-//         .catch(() => logout());
-//     }
-//   }, []);
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get<User>("/user");
+      setUser(response.data);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   const login = async (email: string, password: string) => {
-//     const response = await fetch("http://127.0.0.1:8000/api/login", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ email, password }),
-//     });
+  const login = async (email: string, password: string) => {
+    await axios.post("/login", { email, password });
+    await fetchUser();
+    router.push("/");
+  };
 
-//     if (!response.ok) {
-//       throw new Error("Login failed");
-//     }
+  const logout = async () => {
+    await axios.post("/logout");
+    setUser(null);
+    router.push("/login"); // Redirect to the login page
+  };
 
-//     const data = await response.json();
-//     localStorage.setItem("token", data.token);
-//     setUser(data.user);
-//     setIsAuthenticated(true);
-//     router.push("/");
-//   };
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
-//   const logout = () => {
-//     localStorage.removeItem("token");
-//     setIsAuthenticated(false);
-//     setUser(null);
-//     router.push("/auth/signin");
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// export const useAuth = () => {
-//   const context = useContext(AuthContext);
-//   if (!context) {
-//     throw new Error("useAuth must be used within an AuthProvider");
-//   }
-//   return context;
-// };
+  return (
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};

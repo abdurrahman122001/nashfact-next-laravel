@@ -1,10 +1,22 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import DefaultLayout from "@/components/Layouts/DefaultLaout";
+import "react-quill/dist/quill.snow.css";
+import dynamic from "next/dynamic";
+
+// Dynamically import React Quill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+interface Category {
+    id: number;
+    name: string;
+}
 
 interface Post {
+    id: number;
     title: string;
+    content: string;
+    categories: string[];
     invoiceDate: string;
     status: string;
 }
@@ -12,25 +24,195 @@ interface Post {
 const TableFour = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [page, setPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(0);
+    const [allCategories, setAllCategories] = useState<Category[]>([]);
+    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+    const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+    const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
+    const postsPerPage = 10;
+
+    // Fetch posts
+    const fetchPosts = async (page: number) => {
+        setLoading(true);
+        try {
+            const response = await fetch(
+                `http://localhost:8000/api/posts?page=${page}&limit=${postsPerPage}`,
+            );
+            if (!response.ok) {
+                throw new Error("Failed to fetch posts");
+            }
+            const data = await response.json();
+            setPosts(data.posts);
+            setTotalPages(Math.ceil(data.total / postsPerPage));
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch categories
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch(
+                "http://localhost:8000/api/categories",
+            );
+            const data = await response.json();
+            setAllCategories(data);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await fetch("http://localhost:8000/api/posts");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch posts");
-                }
-                const data = await response.json();
-                setPosts(data);
-            } catch (error) {
-                console.error("Error fetching posts:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        fetchPosts(page);
+        fetchCategories();
+    }, [page]);
 
-        fetchPosts();
-    }, []);
+    // Handle edit form submission
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedPost) return;
+
+        try {
+            const payload = {
+                ...selectedPost,
+                categories: selectedPost.categories,
+                status: selectedPost.status || "draft",
+            };
+
+            const response = await fetch(
+                `http://localhost:8000/api/posts/${selectedPost.id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to update post");
+            }
+
+            const updatedPost = await response.json();
+            const updatedPosts = posts.map((post) =>
+                post.id === selectedPost.id ? updatedPost.post : post,
+            );
+            setPosts(updatedPosts);
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error("Error updating post:", error);
+        }
+    };
+
+    const deletePost = async (id: number) => {
+        try {
+            const response = await fetch(
+                `http://localhost:8000/api/posts/${id}`,
+                {
+                    method: "DELETE",
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to delete post");
+            }
+
+            setPosts(posts.filter((post) => post.id !== id));
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
+    };
+    // Pagination navigation
+    const renderPagination = () => {
+        // Check if the first page is full before rendering pagination
+        if (posts.length < postsPerPage && page === 1) {
+            return null;
+        }
+
+        const pages = [];
+        const maxVisible = 4;
+        const startPage = Math.max(1, page - Math.floor(maxVisible / 2));
+        const endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+        if (startPage > 1) {
+            pages.push(
+                <button
+                    key="1"
+                    onClick={() => setPage(1)}
+                    className="rounded px-3 py-1 text-blue-800 hover:bg-gray-100"
+                    style={{ backgroundColor: "#030fa5" }}
+                >
+                    1
+                </button>,
+            );
+            if (startPage > 2) {
+                pages.push(
+                    <span key="ellipsis-start" className="px-3">
+                        ...
+                    </span>,
+                );
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`px-3 py-1 ${
+                        i === page ? "bg-blue-800 text-white" : "text-blue-500"
+                    } rounded`}
+                >
+                    {i}
+                </button>,
+            );
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                pages.push(
+                    <span key="ellipsis-end" className="px-3">
+                        ...
+                    </span>,
+                );
+            }
+            pages.push(
+                <button
+                    key={totalPages}
+                    onClick={() => setPage(totalPages)}
+                    className="rounded px-3 py-1 text-blue-800 hover:bg-gray-100"
+                >
+                    {totalPages}
+                </button>,
+            );
+        }
+
+        return (
+            <div className="justify-end mt-10 flex space-x-2">
+                {page > 1 && (
+                    <button
+                        onClick={() => setPage(page - 1)}
+                        className="rounded px-3 py-1 text-blue-500 hover:bg-gray-100"
+                    >
+                        Previous
+                    </button>
+                )}
+                {pages}
+                {page < totalPages && (
+                    <button
+                        onClick={() => setPage(page + 1)}
+                        className="rounded px-3 py-1 text-blue-500 hover:bg-gray-100"
+                    >
+                        Next
+                    </button>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card sm:p-7.5">
@@ -38,78 +220,42 @@ const TableFour = () => {
                 <table className="w-full table-auto">
                     <thead>
                         <tr className="bg-[#F7F9FC] text-left dark:bg-dark-2">
-                            <th className="min-w-[220px] px-4 py-4 font-medium text-dark dark:text-white xl:pl-7.5">
+                            <th className="min-w-[220px] px-4 py-4">
                                 Blog Title
                             </th>
-                            <th className="min-w-[150px] px-4 py-4 font-medium text-dark dark:text-white">
+                            <th className="min-w-[150px] px-4 py-4">
                                 Publish Date
                             </th>
-                            <th className="min-w-[120px] px-4 py-4 font-medium text-dark dark:text-white">
-                                Status
-                            </th>
-                            <th className="px-4 py-4 text-right font-medium text-dark dark:text-white xl:pr-7.5">
-                                Actions
-                            </th>
+                            <th className="min-w-[120px] px-4 py-4">Status</th>
+                            <th className="px-4 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
                             <tr>
-                                <td colSpan={4} className="py-4 text-center">
+                                <td colSpan={3} className="py-4 text-center">
                                     Loading...
                                 </td>
                             </tr>
                         ) : (
-                            posts.map((post, index) => (
-                                <tr key={index}>
-                                    <td
-                                        className={`border-[#eee] px-4 py-4 dark:border-dark-3 xl:pl-7.5 ${
-                                            index === posts.length - 1
-                                                ? "border-b-0"
-                                                : "border-b"
-                                        }`}
-                                    >
-                                        <h5 className="text-dark dark:text-white">
-                                            {post.title}
-                                        </h5>
+                            posts.map((post) => (
+                                <tr key={post.id}>
+                                    <td className="px-4 py-4">{post.title}</td>
+                                    <td className="px-4 py-4">
+                                        {post.invoiceDate}
                                     </td>
-                                    <td
-                                        className={`border-[#eee] px-4 py-4 dark:border-dark-3 ${
-                                            index === posts.length - 1
-                                                ? "border-b-0"
-                                                : "border-b"
-                                        }`}
-                                    >
-                                        <p className="text-dark dark:text-white">
-                                            {post.invoiceDate}
-                                        </p>
-                                    </td>
-                                    <td
-                                        className={`border-[#eee] px-4 py-4 dark:border-dark-3 ${
-                                            index === posts.length - 1
-                                                ? "border-b-0"
-                                                : "border-b"
-                                        }`}
-                                    >
+                                    <td className="px-4 py-4">
                                         <p
                                             className={`inline-flex rounded-full px-3.5 py-1 text-body-sm font-medium ${
                                                 post.status === "published"
                                                     ? "bg-[#219653]/[0.08] text-[#219653]"
-                                                    : post.status === "draft"
-                                                      ? "bg-[#D34053]/[0.08] text-[#D34053]"
-                                                      : ""
+                                                    : "bg-[#D34053]/[0.08] text-[#D34053]"
                                             }`}
                                         >
                                             {post.status}
                                         </p>
                                     </td>
-                                    <td
-                                        className={`border py-4 dark:border-dark-3 xl:pr-7.5 ${
-                                            index === posts.length - 1
-                                                ? "border-b-0"
-                                                : "border-b"
-                                        }`}
-                                    >
+                                    <td className="px-4 py-4">
                                         <div className="flex items-center justify-end space-x-3.5">
                                             <button className="hover:text-primary">
                                                 <svg
@@ -133,8 +279,13 @@ const TableFour = () => {
                                                         fill=""
                                                     />
                                                 </svg>
-                                            </button>
-                                            <button className="hover:text-primary">
+                                            </button>{" "}
+                                            <button
+                                                className="hover:text-primary"
+                                                onClick={() =>
+                                                    deletePost(post.id)
+                                                }
+                                            >
                                                 <svg
                                                     className="fill-current"
                                                     width="20"
@@ -163,23 +314,18 @@ const TableFour = () => {
                                                     />
                                                 </svg>
                                             </button>
-                                            <button className="hover:text-primary">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedPost(post);
+                                                    setIsEditModalOpen(true);
+                                                }}
+                                            >
                                                 <svg
-                                                    className="fill-current"
-                                                    width="20"
-                                                    height="20"
-                                                    viewBox="0 0 20 20"
-                                                    fill="none"
+                                                    className="h-5 w-5 fill-current"
                                                     xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24"
                                                 >
-                                                    <path
-                                                        d="M10.4613 13.7551C10.3429 13.8846 10.1755 13.9583 10 13.9583C9.82453 13.9583 9.65714 13.8846 9.53873 13.7551L6.2054 10.1092C5.97248 9.85448 5.99019 9.45915 6.24494 9.22623C6.49969 8.99332 6.89502 9.01102 7.12794 9.26577L9.375 11.7235V2.5C9.375 2.15482 9.65482 1.875 10 1.875C10.3452 1.875 10.625 2.15482 10.625 2.5V11.7235L12.8721 9.26577C13.105 9.01102 13.5003 8.99332 13.7551 9.22623C14.0098 9.45915 14.0275 9.85448 13.7946 10.1092L10.4613 13.7551Z"
-                                                        fill=""
-                                                    />
-                                                    <path
-                                                        d="M3.125 12.5C3.125 12.1548 2.84518 11.875 2.5 11.875C2.15482 11.875 1.875 12.1548 1.875 12.5V12.5457C1.87498 13.6854 1.87497 14.604 1.9721 15.3265C2.07295 16.0765 2.2887 16.7081 2.79029 17.2097C3.29189 17.7113 3.92345 17.927 4.67354 18.0279C5.39602 18.125 6.31462 18.125 7.45428 18.125H12.5457C13.6854 18.125 14.604 18.125 15.3265 18.0279C16.0766 17.927 16.7081 17.7113 17.2097 17.2097C17.7113 16.7081 17.9271 16.0765 18.0279 15.3265C18.125 14.604 18.125 13.6854 18.125 12.5457V12.5C18.125 12.1548 17.8452 11.875 17.5 11.875C17.1548 11.875 16.875 12.1548 16.875 12.5C16.875 13.6962 16.8737 14.5304 16.789 15.1599C16.7068 15.7714 16.5565 16.0952 16.3258 16.3258C16.0952 16.5565 15.7714 16.7068 15.1599 16.789C14.5304 16.8737 13.6962 16.875 12.5 16.875H7.5C6.30382 16.875 5.46956 16.8737 4.8401 16.789C4.22862 16.7068 3.90481 16.5565 3.67418 16.3258C3.44354 16.0952 3.29317 15.7714 3.21096 15.1599C3.12633 14.5304 3.125 13.6962 3.125 12.5Z"
-                                                        fill=""
-                                                    />
+                                                    <path d="M16.293 2.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1 0 1.414l-12 12a1 1 0 0 1-.402.246l-5 1.5a1 1 0 0 1-1.257-1.257l1.5-5a1 1 0 0 1 .246-.402l12-12zM6.414 15h2.828l9-9L15.414 6l-9 9zm-.586.586L2 19.414V17h2.586z" />
                                                 </svg>
                                             </button>
                                         </div>
@@ -190,6 +336,167 @@ const TableFour = () => {
                     </tbody>
                 </table>
             </div>
+            {renderPagination()}
+
+            {/* Edit Modal */}
+            {isEditModalOpen && selectedPost && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="w-[50%] rounded-lg border border-stroke bg-white p-4 p-6 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card">
+                        <h2 className="mb-4 text-lg font-bold">Edit Post</h2>
+                        <form onSubmit={handleEditSubmit}>
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-medium">
+                                    Title
+                                </label>
+                                <input
+                                    type="text"
+                                    value={selectedPost.title}
+                                    onChange={(e) =>
+                                        setSelectedPost({
+                                            ...selectedPost,
+                                            title: e.target.value,
+                                        })
+                                    }
+                                    className="w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-medium">
+                                    Content
+                                </label>
+                                <ReactQuill
+                                    value={selectedPost.content}
+                                    onChange={(e) =>
+                                        setSelectedPost({
+                                            ...selectedPost,
+                                            content: e,
+                                        })
+                                    }
+                                    className="h-200 w-full rounded-[7px]  border-stroke bg-transparent text-dark outline-none transition placeholder:text-dark-6 focus:border-primary active:border-primary disabled:cursor-default dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
+                                    theme="snow"
+                                    modules={{
+                                        toolbar: [
+                                            [{ header: [1, 2, 3, false] }],
+                                            ["bold", "italic", "underline"],
+                                            ["blockquote", "code-block"],
+                                            [
+                                                { list: "ordered" },
+                                                { list: "bullet" },
+                                            ],
+                                            [
+                                                { script: "sub" },
+                                                { script: "super" },
+                                            ],
+                                            ["link", "image"],
+                                            ["clean"],
+                                        ],
+                                    }}
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="mb-5 block text-sm font-medium">
+                                    Categories
+                                </label>
+                                <div className="mb-5 flex flex-wrap gap-2">
+                                    {allCategories.map((category) => (
+                                        <div
+                                            key={category.id}
+                                            className="flex items-center"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                id={`category-${category.id}`}
+                                                checked={selectedPost.categories.includes(
+                                                    category.name,
+                                                )}
+                                                onChange={(e) => {
+                                                    const newCategories = e
+                                                        .target.checked
+                                                        ? [
+                                                              ...selectedPost.categories,
+                                                              category.name,
+                                                          ]
+                                                        : selectedPost.categories.filter(
+                                                              (cat) =>
+                                                                  cat !==
+                                                                  category.name,
+                                                          );
+                                                    setSelectedPost({
+                                                        ...selectedPost,
+                                                        categories:
+                                                            newCategories,
+                                                    });
+                                                }}
+                                                className="mr-2"
+                                            />
+                                            <label
+                                                htmlFor={`category-${category.id}`}
+                                                className="text-sm"
+                                            >
+                                                {category.name}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-medium">
+                                    Status
+                                </label>
+                                <select
+                                    value={selectedPost.status}
+                                    onChange={(e) =>
+                                        setSelectedPost({
+                                            ...selectedPost,
+                                            status: e.target.value,
+                                        })
+                                    }
+                                    className={`relative z-10 w-full appearance-none rounded-[7px] border border-stroke bg-transparent px-11.5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2 ${
+                                        isOptionSelected
+                                            ? "text-dark dark:text-white"
+                                            : ""
+                                    }`}
+                                >
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                </select>
+                            </div>
+                            <div className="mb-4">
+                                <label className="mb-2 block text-sm font-medium">
+                                    Publish Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={selectedPost.invoiceDate}
+                                    onChange={(e) =>
+                                        setSelectedPost({
+                                            ...selectedPost,
+                                            invoiceDate: e.target.value,
+                                        })
+                                    }
+                                    className="form-datepicker w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary"
+                                />
+                            </div>
+                            <div className="flex justify-end space-x-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditModalOpen(false)}
+                                    className="rounded bg-gray-300 px-4 py-2"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="rounded px-4 py-2 text-white"
+                                    style={{ backgroundColor: "#030fa5" }}
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

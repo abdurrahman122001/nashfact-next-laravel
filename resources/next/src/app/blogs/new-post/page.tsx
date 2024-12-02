@@ -2,6 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
+
+// Dynamically import React Quill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 // Breadcrumb Component
 const Breadcrumb = ({ pageName }: { pageName: string }) => (
@@ -23,7 +28,10 @@ const DetailsForm = ({
     content: string;
     setContent: (value: string) => void;
 }) => (
-    <div className="rounded-lg border border-stroke bg-white p-4 p-5 shadow-1 shadow-md dark:border-dark-3 dark:bg-gray-dark dark:shadow-card">
+    <div
+        className="rounded-lg border border-stroke bg-white p-4 p-5 shadow-1 shadow-md dark:border-dark-3 dark:bg-gray-dark dark:shadow-card"
+        style={{ height: "500px" }}
+    >
         <h3 className="mb-3 text-lg font-medium">Details</h3>
         <div className="mb-4">
             <label className="mb-1 block font-medium">Blog Title</label>
@@ -37,11 +45,22 @@ const DetailsForm = ({
         </div>
         <div>
             <label className="mb-1 block font-medium">Content</label>
-            <textarea
-                placeholder="Start writing here..."
+            <ReactQuill
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="h-40 w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition placeholder:text-dark-6 focus:border-primary active:border-primary disabled:cursor-default dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
+                onChange={setContent}
+                className="w-full rounded-[7px]  bg-transparent text-dark outline-none transition placeholder:text-dark-6 focus:border-primary active:border-primary disabled:cursor-default dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+                theme="snow"
+                modules={{
+                    toolbar: [
+                        [{ header: [1, 2, 3, false] }],
+                        ["bold", "italic", "underline"],
+                        ["blockquote", "code-block"],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        [{ script: "sub" }, { script: "super" }],
+                        ["link", "image"],
+                        ["clean"],
+                    ],
+                }}
             />
         </div>
     </div>
@@ -91,32 +110,12 @@ const PublishOptions = ({
                 onChange={(e) => setStatus(e.target.value)}
                 className="relative z-10 w-full appearance-none rounded-[7px] border border-stroke bg-transparent px-4 py-3 outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2"
             >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
+                <option value="Draft">Draft</option>
+                <option value="Published">Published</option>
             </select>
-        </div>
-
-        <div className="mt-4">
-            <label className="mb-2 block font-medium">Visibility:</label>
-            <input
-                type="radio"
-                name="visibility"
-                value="private"
-                className="mr-2"
-            />
-            Private
-            <input
-                type="radio"
-                name="visibility"
-                value="public"
-                className="ml-4 mr-2"
-            />
-            Public
         </div>
     </div>
 );
-
-// CategoriesSelector Component
 const CategoriesSelector = ({
     categories,
     setCategories,
@@ -189,7 +188,6 @@ const CategoriesSelector = ({
         </div>
     );
 };
-
 const TagsInput = ({
     tags,
     setTags,
@@ -238,7 +236,6 @@ const TagsInput = ({
         </div>
     );
 };
-
 const addNewPost = () => {
     const [title, setTitle] = useState<string>("");
     const [content, setContent] = useState<string>("");
@@ -254,7 +251,7 @@ const addNewPost = () => {
 
         const formData = new FormData();
         formData.append("title", title);
-        formData.append("content", content);
+        formData.append("content", content); // Send rich-text content
         if (thumbnail) formData.append("thumbnail", thumbnail);
         formData.append(
             "categories",

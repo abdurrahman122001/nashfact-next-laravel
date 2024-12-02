@@ -16,6 +16,8 @@ const BlogsTable = () => {
     const [newCategory, setNewCategory] = useState("");
     const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
     const [editCategoryName, setEditCategoryName] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const categoriesPerPage = 10;
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -118,6 +120,14 @@ const BlogsTable = () => {
         }
     };
 
+    // Pagination logic
+    const totalPages = Math.ceil(categories.length / categoriesPerPage);
+    const startIndex = (currentPage - 1) * categoriesPerPage;
+    const currentCategories = categories.slice(
+        startIndex,
+        startIndex + categoriesPerPage,
+    );
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -126,8 +136,8 @@ const BlogsTable = () => {
         <div className="rounded-[10px] border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card sm:p-7.5">
             <div className="mb-4 flex justify-end">
                 <button
-                    className="px-6 mb-4 mt-4 py-4 text-white font-xl"
-                    style={{backgroundColor: '#030FA5', borderRadius: '35px'}}
+                    className="font-xl mb-4 mt-4 px-6 py-4 text-white"
+                    style={{ backgroundColor: "#030FA5", borderRadius: "35px" }}
                     onClick={() => setIsAddModalOpen(true)}
                 >
                     Add New Category
@@ -153,7 +163,7 @@ const BlogsTable = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {categories.map((category) => (
+                        {currentCategories.map((category) => (
                             <tr key={category.id}>
                                 <td className="border-[#eee] px-4 py-4 dark:border-dark-3">
                                     {category.id}
@@ -251,10 +261,46 @@ const BlogsTable = () => {
                 </table>
             </div>
 
+            {/* Pagination */}
+            {categories.length > categoriesPerPage && (
+                <div className="mt-10 flex justify-end space-x-2">
+                    {currentPage > 1 && (
+                        <button
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                            className="px-3 py-1 rounded"
+                        >
+                            Previous
+                        </button>
+                    )}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                        (page) => (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`px-3 py-1 rounded ${
+                                    page === currentPage
+                                        ? "bg-blue-800 text-white"
+                                        : ""
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        ),
+                    )}
+                    {currentPage < totalPages && (
+                        <button
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                            className="px-3 py-1 rounded"
+                        >
+                            Next
+                        </button>
+                    )}
+                </div>
+            )}
             {/* Add Modal */}
             {isAddModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="w-full max-w-md rounded-lg border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card p-6">
+                    <div className="w-full max-w-md rounded-lg border border-stroke bg-white p-4 p-6 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card">
                         <h2 className="text-lg font-bold">Add New Category</h2>
                         <input
                             type="text"
@@ -273,7 +319,7 @@ const BlogsTable = () => {
                             <button
                                 onClick={handleAddCategory}
                                 className="rounded px-4 py-2 text-white"
-                                style={{backgroundColor: '#030FA5'}}
+                                style={{ backgroundColor: "#030FA5" }}
                             >
                                 Add
                             </button>
@@ -285,8 +331,8 @@ const BlogsTable = () => {
             {/* Edit Modal */}
             {isEditModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="w-full max-w-md rounded-lg border border-stroke bg-white p-4 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card p-6">
-                        <h2 className="text-lg font-bold">Edit Category</h2>
+                    <div className="w-full max-w-md rounded-lg border border-stroke bg-white p-4 p-6 shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card">
+                        <h2 className="text-lg font-bold mb-5">Edit Category</h2>
                         <input
                             type="text"
                             value={editCategoryName}
@@ -294,7 +340,7 @@ const BlogsTable = () => {
                                 setEditCategoryName(e.target.value)
                             }
                             placeholder="Category Name"
-                            className="mt-4 w-full rounded border px-3 py-2"
+                            className="w-full rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-gray-2 dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
                         />
                         <div className="mt-6 flex justify-end space-x-4">
                             <button
@@ -306,7 +352,7 @@ const BlogsTable = () => {
                             <button
                                 onClick={handleEditCategory}
                                 className="rounded bg-blue-500 px-4 py-2 text-white"
-                                style={{backgroundColor: '#030FA5'}}
+                                style={{ backgroundColor: "#030FA5" }}
                             >
                                 Save
                             </button>

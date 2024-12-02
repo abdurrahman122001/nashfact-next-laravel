@@ -30,21 +30,31 @@ class PostController extends Controller
                 'title' => $validatedData['title'],
                 'content' => $validatedData['content'],
                 'categories' => json_decode($validatedData['categories'], true),
-                'status' => $validatedData['status'], // Save status
+                'status' => $validatedData['status'],
             ]);
 
             // Handle thumbnail upload
+            // if ($request->hasFile('thumbnail')) {
+            //     $thumbnailPath = $request->file('thumbnail')->store('thumbnails');
+            //     Thumbnail::create([
+            //         'post_id' => $post->id,
+            //         'file_path' => $thumbnailPath,
+            //     ]);
+            // }
             if ($request->hasFile('thumbnail')) {
-                $thumbnailPath = $request->file('thumbnail')->store('thumbnails');
+                // Store the thumbnail in a directory called 'public/thumbnails'
+                $thumbnailPath = $request->file('thumbnail')->store('public/thumbnails');
+
+                // Save the thumbnail path in the database
                 Thumbnail::create([
                     'post_id' => $post->id,
-                    'file_path' => $thumbnailPath,
+                    'file_path' => str_replace('public/', '', $thumbnailPath), // Remove 'public/' prefix for storage path consistency
                 ]);
             }
 
             return response()->json([
                 'message' => 'Post created successfully!',
-                'post' => $post->load('thumbnail'), // Include the thumbnail in the response
+                'post' => $post->load('thumbnail'),
             ], 201);
         } catch (\Exception $e) {
             Log::error('Error creating post:', [
@@ -58,28 +68,117 @@ class PostController extends Controller
             ], 500);
         }
     }
-    public function getPosts()
+    public function getPosts(Request $request)
     {
         try {
-            // Fetch posts from the database
-            $posts = Post::select(['title', 'created_at', 'status'])->get();
+            $limit = $request->input('limit', 10); // Default 10 posts per page
+            $page = $request->input('page', 1); // Default to the first page
+
+            // Paginate posts
+            $posts = Post::select(['id', 'title', 'content', 'categories', 'created_at', 'status'])
+                ->skip(($page - 1) * $limit)
+                ->take($limit)
+                ->get();
 
             // Format posts
             $formattedPosts = $posts->map(function ($post) {
                 return [
+                    'id' => $post->id,
                     'title' => $post->title,
-                    'invoiceDate' => $post->created_at instanceof \DateTime ? $post->created_at->format('M d, Y') : (new \DateTime($post->created_at))->format('M d, Y'),
+                    'content' => $post->content,
+                    'categories' => $post->categories,
+                    'invoiceDate' => $post->created_at->format('M d, Y'),
                     'status' => $post->status,
                 ];
             });
 
-            return response()->json($formattedPosts, 200);
+            $totalPosts = Post::count(); // Total number of posts
+
+            return response()->json([
+                'posts' => $formattedPosts,
+                'total' => $totalPosts,
+                'page' => $page,
+                'limit' => $limit,
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to fetch posts.',
                 'error' => $e->getMessage(),
             ], 500);
         }
-    
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $validatedData = $request->validate([
+                'title' => 'required|string|max:255',
+                'content' => 'required|string',
+                'categories' => 'nullable|array', // Expect an array
+                'status' => 'required|string|in:draft,published',
+                'created_at' => 'nullable|date',
+            ]);
+
+            $post = Post::findOrFail($id);
+
+            $post->title = $validatedData['title'];
+            $post->content = $validatedData['content'];
+
+            $currentCategories = $post->categories ?? [];
+            $newCategories = $validatedData['categories'] ?? [];
+
+            $categoriesToRemove = array_diff($currentCategories, $newCategories);
+            $categoriesToAdd = array_diff($newCategories, $currentCategories);
+
+            // Update categories
+            $post->categories = $newCategories;
+
+            $post->status = $validatedData['status'];
+            $post->created_at = $validatedData['created_at'] ?? $post->created_at;
+
+            $post->save();
+
+            return response()->json(['message' => 'Post updated successfully!', 'post' => $post], 200);
+        } catch (\Exception $e) {
+            Log::error('Error updating post:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['message' => 'Failed to update post.', 'error' => $e->getMessage()], 500);
+        }
+    }
+    public function getPostStats()
+    {
+        try {
+            // Count the total number of posts
+            $totalPosts = Post::count();
+
+            return response()->json([
+                'totalPosts' => $totalPosts,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve stats.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function destroy($id)
+    {
+        try {
+            $post = Post::findOrFail($id);
+            $post->delete();
+
+            return response()->json([
+                'message' => 'Post deleted successfully!',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete post.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
